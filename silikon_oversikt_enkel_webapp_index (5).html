@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Silikonoversikt for benkeplater i stein</title>
+  <meta name="description" content="Søkbar oversikt over silikontyper til ulike steintyper for benkeplater." />
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121a33;
+      --muted: #8ea0bf;
+      --text: #e6eefc;
+      --accent: #7aa2ff;
+      --accent-2: #96f7d2;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 10% 0%, #0b1430 0%, var(--bg) 60%);
+      color: var(--text);
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    header { display: flex; flex-direction: column; align-items: center; gap: 12px; justify-content: center; text-align: center; }
+    header img { max-width: 220px; height: auto; }
+    .badge { font-size: 12px; color: var(--muted); background: rgba(255,255,255,.06); padding: 6px 10px; border-radius: 999px; }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .toolbar { display: grid; gap: 12px; grid-template-columns: 1fr; padding: 16px; }
+    @media (min-width: 900px) { .toolbar { grid-template-columns: 1fr 200px 200px 160px; align-items: center; } }
+
+    .search { display: flex; align-items: center; gap: 10px; background: #0f1730; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 14px; }
+    .search input { all: unset; flex: 1; font-size: 16px; line-height: 1.4; color: var(--text); }
+    .select, .button { appearance: none; border: 1px solid rgba(255,255,255,0.14); background: #0f1730; color: var(--text); padding: 12px 14px; border-radius: 12px; font-size: 14px; width: 100%; }
+    .button { cursor: pointer; text-align: center; }
+    .button:active { transform: translateY(1px); }
+
+    .summary { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px 16px; color: var(--muted); }
+
+    .grid { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 12px; }
+    @media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 980px) { .grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+    .card { position: relative; padding: 16px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); display: grid; gap: 10px; }
+    .card h3 { margin: 0; font-size: 18px; letter-spacing: .2px; }
+    .kv { display: grid; grid-template-columns: 120px 1fr; gap: 6px; font-size: 14px; color: #cdd9f6; }
+    .kv .k { color: var(--muted); }
+    .pill { display: inline-flex; align-items: center; gap: 8px; border: 1px dashed rgba(255,255,255,0.2); padding: 6px 10px; border-radius: 999px; font-size: 12px; color: #dbe8ff; }
+    .copy { position: absolute; top: 12px; right: 12px; font-size: 12px; cursor: pointer; color: var(--accent); background: transparent; border: none; }
+
+    footer { opacity: .8; color: var(--muted); font-size: 12px; padding: 16px; text-align: center; }
+
+    @media print {
+      body { background: #fff; color: #000; }
+      .panel, .card { background: #fff; border-color: #ddd; box-shadow: none; }
+      .toolbar, .copy, .badge { display: none !important; }
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="SIGVARTSEN-hvit.png" alt="Sigvartsen logo" onerror="this.style.display='none'"/>
+      <div class="badge" id="badgeCount">0 typer</div>
+    </header>
+
+    <section class="panel">
+      <div class="toolbar">
+        <label class="search" aria-label="Søk">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10.5 3a7.5 7.5 0 015.96 12.12l4.21 4.21-1.42 1.42-4.21-4.21A7.5 7.5 0 1110.5 3zm0 2a5.5 5.5 0 100 11 5.5 5.5 0 000-11z" fill="currentColor"/></svg>
+          <input id="q" placeholder="Søk på stein, silikon, leverandør…" autofocus />
+        </label>
+        <select id="typeFilter" class="select" aria-label="Filtrer på steintype">
+          <option value="">Alle steintyper</option>
+        </select>
+        <select id="brandFilter" class="select">
+          <option value="">Alle leverandører</option>
+        </select>
+        <select id="sort" class="select" aria-label="Sorter">
+          <option value="stein">Sorter: Stein (A–Å)</option>
+          <option value="silikon">Sorter: Silikon (A–Å)</option>
+        </select>
+      </div>
+      <div class="summary" id="summary">Viser 0 av 0</div>
+      <div class="grid" id="grid" aria-live="polite"></div>
+    </section>
+
+    <footer>
+      Tips: Trykk på silikon-navnet for å kopiere. Legg gjerne siden på iPadens Hjem-skjerm via Del → <em>Legg til på Hjem-skjerm</em>.
+    </footer>
+  </div>
+
+  <script>
+    const DATA = [
+      { stein: "Adia", steintype: "Dekton Keramisk", silikon: " Adia, Arga, Ava, Avorio, Nebu, Taga, Trevi, ID:907903 ", leverandor: " Colordek ", platelengde: "3250 mm" },
+      { stein: " Arga", steintype: "Dekton Keramisk", silikon: " Adia, Arga, Ava, Avorio, Nebu, Taga, Trevi, ID: 907903 ", leverandor: " Colordek ", platelengde: "3250 mm" },
+      { stein: " Ava", steintype: "Dekton Keramisk", silikon: " Adia, Arga, Ava, Avorio, Nebu, Taga, Trevi, ID: 907903 ", leverandor: " Colordek ", platelengde: "3250 mm" },
+      { stein: " Avorio", steintype: "Dekton Keramisk", silikon: " Adia, Arga, Ava, Avorio, Nebu, Taga, Trevi, ID: 907903 ", leverandor: " Colordek ", platelengde: "3250 mm" },
+      { stein: " Nebu", steintype: "Dekton Keramisk", silikon: " Adia, Arga, Ava, Avorio, Nebu, Taga, Trevi, ID: 907903 ", leverandor: " Colordek ", platelengde: "3250 mm" },
+      { stein: " Taga", steintype: "Dekton Keramisk", silikon: " Adia, Arga, Ava, Avorio, Nebu, Taga, Trevi, ID: 907903 ", leverandor: " Colordek ", platelengde: "3250 mm" },
+      { stein: " Trevi", steintype: "Dekton Keramisk", silikon: " Adia, Arga, Ava, Avorio, Nebu, Taga, Trevi, ID: 907903 ", leverandor: " Colordek ", platelengde: "3250 mm" },
+      { stein: " Kensho", steintype: "Silestone kompositt", silikon: " Alpina White, Kensho, ID: 93678 ", leverandor: " Colorsil ", platelengde: "3250 mm" },
+      { stein: " Alpina White ", steintype: "Silestone kompositt", silikon: " Alpina White, Kensho, ID: 93678 ", leverandor: " Colorsil ", platelengde: "3250 mm" },
+      { stein: " Clamshell 4130", steintype: "Caesarstone kompositt", silikon: " Cincel grey, Royal reef, C pulse, ID: 906646", leverandor: " Colorsil ", platelengde: "3030 mm" },
+      { stein: " Raw concrete 4004", steintype: "Caesarstone kompositt", silikon: " Alpina White, Kensho, ID: 93678 ", leverandor: " Colorsil ", platelengde: "3030 mm" },
+      { stein: " Bianco drift 6131", steintype: "Caesarstone kompositt", silikon: " Crème 1600 ", leverandor: " Akemi ", platelengde: "3030 mm" },
+      
+
+
+
+{ stein: " Shitake 4230", steintype: "Caesarstone kompositt", silikon: " Coral clay, ID: 906274", leverandor: " Colorsil ", platelengde: "3030 mm" },
+    ];
+
+    const norm = (s) => (s||"").toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const byKeyAsc = (k) => (a, b) => norm(a[k]).localeCompare(norm(b[k]));
+
+    function unique(list, key) {
+      return Array.from(new Set(list.map(x => x[key]).filter(Boolean))).sort((a,b)=>a.localeCompare(b));
+    }
+
+    const el = (id) => document.getElementById(id);
+    const grid = el('grid');
+    const summary = el('summary');
+    const badge = el('badgeCount');
+    const brandFilter = el('brandFilter');
+    const typeFilter = el('typeFilter');
+    const sort = el('sort');
+    const q = el('q');
+
+    function populateFilters() {
+      for (const b of unique(DATA, 'leverandor')) {
+        const o = document.createElement('option'); o.value = b; o.textContent = b; brandFilter.appendChild(o);
+      }
+      for (const t of unique(DATA, 'steintype')) {
+        const o = document.createElement('option'); o.value = t; o.textContent = t; typeFilter.appendChild(o);
+      }
+    }
+
+    function copy(text) {
+      if (!navigator.clipboard) return;
+      navigator.clipboard.writeText(text).then(()=>{
+        const prev = summary.textContent;
+        summary.textContent = `Kopiert: ${text}`;
+        summary.style.color = 'var(--accent-2)';
+        setTimeout(()=>{ summary.textContent = prev; summary.style.color = 'var(--muted)'; }, 1500);
+      });
+    }
+
+    function render(list) {
+      grid.innerHTML = '';
+      list.forEach(item => {
+        const c = document.createElement('div');
+        c.className = 'card';
+        c.innerHTML = `
+          <button class="copy" title="Kopier silikon" aria-label="Kopier silikon" onclick="copy('${(item.silikon||'').replace(/'/g, "\\'")}')">Kopier</button>
+          <h3>${item.stein || 'Ukjent stein'}</h3>
+          <div class="kv"><div class="k">Steintype</div><div>${item.steintype || '-'}</div></div>
+          <div class="kv"><div class="k">Silikon</div><div><span class="pill">${item.silikon || '-'}</span></div></div>
+          <div class="kv"><div class="k">Leverandør</div><div>${item.leverandor || '-'}</div></div>
+          <div class="kv"><div class="k">Platelengde</div><div>${item.platelengde || '-'}</div></div>`;
+        grid.appendChild(c);
+      });
+    }
+
+    function apply() {
+      const query = norm(q.value);
+      const brand = brandFilter.value;
+      const type = typeFilter.value;
+      const sorter = sort.value;
+      let list = [...DATA];
+
+      if (brand) list = list.filter(x => x.leverandor === brand);
+      if (type) list = list.filter(x => x.steintype === type);
+
+      if (query) {
+        list = list.filter(x => {
+          const hay = [x.stein, x.steintype, x.silikon, x.leverandor, x.platelengde].map(norm).join(' | ');
+          return hay.includes(query);
+        });
+      }
+
+      list.sort(byKeyAsc(sorter === 'silikon' ? 'silikon' : 'stein'));
+      render(list);
+      summary.textContent = `Viser ${list.length} av ${DATA.length}`;
+      badge.textContent = `${DATA.length} typer`;
+    }
+
+    populateFilters();
+    apply();
+    q.addEventListener('input', apply);
+    brandFilter.addEventListener('change', apply);
+    typeFilter.addEventListener('change', apply);
+    sort.addEventListener('change', apply);
+    window.addEventListener('keydown', (e) => { if (e.key === '/') { e.preventDefault(); q.focus(); } });
+  </script>
+</body>
+</html>
